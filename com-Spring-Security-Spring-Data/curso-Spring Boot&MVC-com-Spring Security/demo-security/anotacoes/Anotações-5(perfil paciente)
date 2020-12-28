@@ -1,0 +1,50 @@
+Boqueando conteúdo Html via Perfil
+
+Um recurso bastante interessante fornecido pelo Spring Security é estender o uso dos métodos hasAuthority() e hasAnyAuthority para as páginas. 
+Desta forma, temos a capacidade de omitir especificas partes das páginas conforme o perfil de usuário que estiver logado.
+Isso é útil para que perfis sem autorização de acesso a uma área não precise saber que aquela área determinada existe. Desta forma, podemos evitar 
+que algum intrometido tente de alguma forma acessar conteúdos que não pertencem a ele e adicionamos assim uma proteção maior à aplicação.
+
+Para ter acesso ao métodos de segurança na página HTML contamos com o auxilio da biblioteca thymeleaf-extras-springsecurity5, a qual já foi 
+utilizada anteriormente para o teste de verificação se o usuário está logado ou não.
+A configuração de ocultação de HTML deve ser incluída na página via sec:authorize, sempre na tag raiz do que será ocultado. 
+
+Como este usuário é um paciente, o ideal é que ele não consiga visualizar itens da página que não pertencem, ou seja, que sejam são acessíveis a ele. 
+Sendo assim, vamos omitir da página, para o perfil PACIENTE os menus Administrador e Médico com a seguinte configuração na página header.html:
+
+<li class="nav-item dropdown" sec:authorize="hasAuthority('PACIENTE')"><a
+	class="btn btn-dark dropdown-toggle" href="#" id="dropdown03"
+	data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pacientes</a>
+    <div class="dropdown-menu" aria-labelledby="dropdown03">
+        <a class="dropdown-item" th:href="@{/pacientes/dados}">Cadastrar Dados</a>
+        <a class="dropdown-item" th:href="@{/u/editar/senha}">Editar Senha</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" th:href="@{/agendamentos/agendar}">Agendar Consulta</a>
+        <a class="dropdown-item" th:href="@{/agendamentos/historico/paciente}">Histórico de Consultas</a>
+    </div>
+</li>	
+
+Observe em <li> , que é a tag raiz do menu para pacientes, que ela agora contém a instrução sec:authorize="hasAuthority('PACIENTE')" e assim, todo 
+esse conteúdo será pertencente e visível apenas ao usuário que seja um paciente. Já para limitar a visualização dos menus de Administrador e Médico 
+para o usuário do tipo PACIENTE, incluímos a seguinte instrução nas tags <li> de cada menu raiz que desejamos esconder do paciente:
+
+<li class="nav-item dropdown" sec:authorize="hasAuthority('ADMIN')"><a
+	class="btn btn-dark dropdown-toggle" href="#" id="dropdown01"
+	data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admistrador</a>
+    <div class="dropdown-menu" aria-labelledby="dropdown01">
+    	<a class="dropdown-item" th:href="@{/especialidades}">Especialidades</a> 
+	<div class="dropdown-divider"></div>
+	<a class="dropdown-item" th:href="@{/u/novo/cadastro/usuario}">Cadastro de Usuários</a>
+	<a class="dropdown-item" th:href="@{/u/lista}">Lista de Usuários</a>
+    </div>
+</li>
+<li class="nav-item dropdown" sec:authorize="hasAuthority('MEDICO')"><a
+	class="btn btn-dark dropdown-toggle" href="#" id="dropdown02"
+	data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Médicos</a>
+    <div class="dropdown-menu" aria-labelledby="dropdown02">
+	<a class="dropdown-item" th:href="@{/medicos/dados}">Dados Cadastrais</a>
+	<a class="dropdown-item" th:href="@{/u/editar/senha}">Editar Senha</a>
+	<div class="dropdown-divider"></div>
+	<a class="dropdown-item" th:href="@{/agendamentos/historico/consultas}">Consultas Agendadas</a>
+    </div>
+</li>
